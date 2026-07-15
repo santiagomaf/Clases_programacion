@@ -1,0 +1,11 @@
+# Logs y temporales
+*.log
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Notebook de práctica personal (no publicar)
+Ejercicios*.ipynb

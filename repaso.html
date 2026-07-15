@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repaso · Python básico</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>📚 Guía de repaso · Python</h1>
+    <div class="nav-links">
+      <a href="index.html">Ejercicios</a>
+      <a href="admin.html" class="muted">Admin</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <p class="muted">Repaso de lo esencial. Cada ejemplo tiene un botón <b>▶ Probar</b> para ejecutarlo aquí mismo y ver el resultado. Al final hay un <a href="#playground">espacio libre</a> para que pruebes tu propio código.</p>
+      <h2>Contenidos</h2>
+      <div class="toc">
+        <a href="#es">1. Entrada y salida (print / input)</a>
+        <a href="#var">2. Variables</a>
+        <a href="#if">3. if / elif / else</a>
+        <a href="#while">4. while</a>
+        <a href="#for">5. for y range</a>
+        <a href="#listas">6. Listas (append, pop…)</a>
+        <a href="#dicc">7. Diccionarios</a>
+        <a href="#func">8. Funciones</a>
+        <a href="#metodos">9. Chuleta de métodos</a>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <div class="card topic" id="es">
+      <h2>1. Entrada y salida</h2>
+      <p><code class="inline">print()</code> muestra información en pantalla. <code class="inline">input()</code> pide un dato al usuario (siempre lo entrega como <b>texto</b>, por eso muchas veces lo envolvemos en <code class="inline">int()</code> o <code class="inline">float()</code>).</p>
+      <p>Las <b>f-strings</b> (<code class="inline">f"..."</code>) permiten meter variables dentro de un texto usando <code class="inline">{ }</code>.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+nombre = "Matías"
+edad = 18
+print("Hola mundo")
+print(f"Me llamo {nombre} y tengo {edad} años")
+print("La suma es:", 2 + 3)
+        </script>
+      </div>
+      <p>Con <code class="inline">input()</code> (este ejemplo ya trae una respuesta simulada para poder ejecutarlo):</p>
+      <div class="ejemplo" data-stdin="7">
+        <script type="text/x-python">
+tiempo = int(input("Ingresa el tiempo: "))
+print(f"El tiempo ingresado es {tiempo} y el doble es {tiempo * 2}")
+        </script>
+      </div>
+      <div class="tip"><b>Ojo:</b> si haces <code class="inline">input()</code> sin <code class="inline">int()</code> y luego intentas sumar, Python concatena texto en vez de sumar números.</div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card topic" id="var">
+      <h2>2. Variables</h2>
+      <p>Una variable es un <b>nombre</b> que guarda un valor. Se crea con <code class="inline">=</code> (asignación). No hay que declarar el tipo: Python lo deduce solo.</p>
+      <table class="methods">
+        <tr><th>Tipo</th><th>Ejemplo</th><th>Para qué</th></tr>
+        <tr><td><code>int</code></td><td><code>edad = 18</code></td><td>números enteros</td></tr>
+        <tr><td><code>float</code></td><td><code>altura = 1.78</code></td><td>números con decimales</td></tr>
+        <tr><td><code>str</code></td><td><code>nombre = "Ana"</code></td><td>texto</td></tr>
+        <tr><td><code>bool</code></td><td><code>aprobado = True</code></td><td>verdadero / falso</td></tr>
+      </table>
+      <div class="ejemplo">
+        <script type="text/x-python">
+puntos = 10          # int
+puntos = puntos + 5  # ahora vale 15
+precio = 1990.5      # float
+activo = True        # bool
+print(puntos, precio, activo)
+print(type(precio))  # muestra el tipo
+        </script>
+      </div>
+      <div class="tip"><b>Nombres:</b> usa nombres claros (<code class="inline">promedio</code>, no <code class="inline">x</code>), en minúsculas y sin espacios (usa <code class="inline">guion_bajo</code>).</div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card topic" id="if">
+      <h2>3. if / elif / else</h2>
+      <p>Sirve para <b>tomar decisiones</b>: ejecutar código solo si se cumple una condición. La indentación (los espacios) indica qué está "dentro" del <code class="inline">if</code>.</p>
+      <p>Operadores de comparación: <code class="inline">&lt;</code> <code class="inline">&gt;</code> <code class="inline">&lt;=</code> <code class="inline">&gt;=</code> <code class="inline">==</code> (igual) <code class="inline">!=</code> (distinto). Se combinan con <code class="inline">and</code>, <code class="inline">or</code>, <code class="inline">not</code>.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+tiempo = 77
+if tiempo < 75:
+    print("Clasifica directo")
+elif tiempo < 80:       # si el anterior fue falso y este verdadero
+    print("Va a repechaje")
+else:                   # si ninguno se cumplió
+    print("Eliminado")
+        </script>
+      </div>
+      <p>Ejemplo con <code class="inline">and</code> (deben cumplirse las dos condiciones):</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+nota = 5
+if nota >= 1 and nota <= 7:
+    print("Nota válida")
+else:
+    print("Nota fuera de rango")
+        </script>
+      </div>
+      <div class="tip"><b>Recuerda:</b> <code class="inline">=</code> asigna un valor; <code class="inline">==</code> compara si son iguales. ¡No los confundas!</div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card topic" id="while">
+      <h2>4. while</h2>
+      <p>Repite un bloque <b>mientras</b> una condición sea verdadera. Se usa cuando <b>no sabes de antemano</b> cuántas vueltas harás (o hasta que pase algo). Necesitas que algo cambie dentro del bucle, o será infinito.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+contador = 0
+while contador < 5:
+    print("Vuelta número", contador)
+    contador = contador + 1   # sin esto, sería infinito
+print("Fin")
+        </script>
+      </div>
+      <p><code class="inline">break</code> corta el bucle de inmediato. Útil para "repetir hasta que el usuario escriba algo":</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+total = 0
+precios = [350, 1200, 3500, 0]   # el 0 significa "terminar"
+i = 0
+while True:
+    p = precios[i]
+    i = i + 1
+    if p == 0:
+        break        # salimos del while
+    total = total + p
+print("Total:", total)
+        </script>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card topic" id="for">
+      <h2>5. for y range</h2>
+      <p>Recorre una secuencia (una lista, un texto, un <code class="inline">range</code>…) haciendo una vuelta por cada elemento. Se usa cuando <b>sí sabes</b> cuántas veces repetir, o para recorrer todos los elementos de algo.</p>
+      <p><code class="inline">range(n)</code> genera los números <code class="inline">0, 1, ..., n-1</code>.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+# repetir 3 veces
+for i in range(3):
+    print("Hola", i)
+
+# recorrer los elementos de una lista
+frutas = ["pera", "manzana", "kiwi"]
+for fruta in frutas:
+    print("Me gusta la", fruta)
+        </script>
+      </div>
+      <p>Dos <code class="inline">for</code> anidados (para recorrer una tabla / tablero):</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+for fila in range(3):
+    for columna in range(3):
+        print(fila, columna)
+        </script>
+      </div>
+      <div class="tip"><b>while vs for:</b> usa <code class="inline">for</code> cuando conoces la cantidad de vueltas (ej: "para cada alumno"); usa <code class="inline">while</code> cuando dependes de una condición (ej: "hasta que escriba 0").</div>
+    </div>
+
+    <!-- 6 -->
+    <div class="card topic" id="listas">
+      <h2>6. Listas</h2>
+      <p>Una lista guarda <b>varios valores en orden</b>, dentro de <code class="inline">[ ]</code>. Cada elemento tiene una <b>posición (índice)</b> que empieza en <b>0</b>.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+notas = [4.5, 6.0, 7.0, 3.2]
+print(notas[0])        # primer elemento -> 4.5
+print(notas[-1])       # último elemento -> 3.2
+print(len(notas))      # cuántos hay -> 4
+notas[1] = 5.5         # cambiar un valor
+print(notas)
+        </script>
+      </div>
+      <p><b>append</b> agrega un elemento al final. <b>pop</b> saca (y devuelve) un elemento; sin número saca el último, o le indicas el índice.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+compras = []
+compras.append("pan")     # ['pan']
+compras.append("leche")   # ['pan', 'leche']
+compras.append("huevos")
+print(compras)
+
+ultimo = compras.pop()    # saca 'huevos'
+print("Saqué:", ultimo)
+print(compras)
+        </script>
+      </div>
+      <p>Patrón típico: recorrer una lista con <code class="inline">for</code> y contar / sumar:</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+notas = [4.5, 6.0, 7.0, 3.2]
+suma = 0
+for n in notas:
+    suma = suma + n
+print("Promedio:", suma / len(notas))
+        </script>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="card topic" id="dicc">
+      <h2>7. Diccionarios</h2>
+      <p>Un diccionario guarda pares <b>llave → valor</b>, dentro de <code class="inline">{ }</code>. En vez de acceder por posición (como las listas), accedes por su <b>llave</b>.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+piloto = {"nombre": "Matías", "edad": 18, "altura": 1.78}
+print(piloto["nombre"])      # -> Matías
+piloto["edad"] = 19          # cambiar un valor
+piloto["equipo"] = "Rojo"    # agregar un par nuevo
+print(piloto)
+        </script>
+      </div>
+      <p>Recorrer un diccionario con <code class="inline">.items()</code> (llave y valor a la vez):</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+precios = {"pan": 900, "leche": 1200, "huevos": 2500}
+for producto, precio in precios.items():
+    print(f"{producto} cuesta ${precio}")
+        </script>
+      </div>
+      <p>Las llaves también pueden ser <b>tuplas</b>, útil para un tablero <code class="inline">(fila, columna)</code>:</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+tablero = {}
+for fila in range(2):
+    for col in range(2):
+        tablero[(fila, col)] = "   "
+tablero[(0, 0)] = "W-T"
+print(tablero[(0, 0)])
+print("Casillas:", len(tablero))
+        </script>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="card topic" id="func">
+      <h2>8. Funciones</h2>
+      <p>Una función es un <b>bloque de código con nombre</b> que puedes reutilizar. Se define con <code class="inline">def</code>. Lo que va entre paréntesis son los <b>parámetros</b> (datos que recibe). <code class="inline">return</code> <b>devuelve</b> un resultado.</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+def suma(a, b):        # a y b son parámetros
+    return a + b       # devuelve el resultado
+
+resultado = suma(3, 4)
+print(resultado)       # -> 7
+print(suma(10, 25))    # -> 35
+        </script>
+      </div>
+      <p>Una función puede modificar una lista o diccionario, o simplemente imprimir (si no tiene <code class="inline">return</code>, devuelve <code class="inline">None</code>):</p>
+      <div class="ejemplo">
+        <script type="text/x-python">
+def pago_total(monto, porcentaje):
+    propina = monto * porcentaje / 100
+    return monto + propina
+
+print(pago_total(10000, 25))   # 12500.0
+print(pago_total(45500, 15))   # 52325.0
+        </script>
+      </div>
+      <div class="tip"><b>Diferencia clave:</b> <code class="inline">print</code> solo <b>muestra</b> algo en pantalla; <code class="inline">return</code> <b>entrega</b> un valor que puedes guardar en una variable y volver a usar.</div>
+    </div>
+
+    <!-- 9 -->
+    <div class="card topic" id="metodos">
+      <h2>9. Chuleta de métodos</h2>
+      <table class="methods">
+        <tr><th>Sirve para</th><th>Cómo se usa</th><th>Qué hace</th></tr>
+        <tr><td>Agregar a lista</td><td><code>lista.append(x)</code></td><td>añade <code>x</code> al final</td></tr>
+        <tr><td>Sacar de lista</td><td><code>lista.pop()</code></td><td>saca y devuelve el último</td></tr>
+        <tr><td>Sacar por posición</td><td><code>lista.pop(0)</code></td><td>saca y devuelve el del índice 0</td></tr>
+        <tr><td>Tamaño</td><td><code>len(lista)</code></td><td>cuántos elementos hay</td></tr>
+        <tr><td>Rango de números</td><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td></tr>
+        <tr><td>Texto a número</td><td><code>int("5")</code> / <code>float("5.5")</code></td><td>convierte texto a número</td></tr>
+        <tr><td>Minúsculas</td><td><code>texto.lower()</code></td><td>pasa el texto a minúsculas</td></tr>
+        <tr><td>Llaves del dicc</td><td><code>dicc.keys()</code></td><td>todas las llaves</td></tr>
+        <tr><td>Valores del dicc</td><td><code>dicc.values()</code></td><td>todos los valores</td></tr>
+        <tr><td>Pares del dicc</td><td><code>dicc.items()</code></td><td>llave y valor juntos</td></tr>
+      </table>
+    </div>
+
+    <!-- Playground -->
+    <div class="card topic" id="playground">
+      <h2>🧪 Prueba tu propio código</h2>
+      <p class="muted">Escribe lo que quieras y ejecútalo. Es un espacio libre para experimentar.</p>
+      <textarea id="pgCode" class="code" spellcheck="false">nombre = "Ana"
+print(f"¡Hola, {nombre}!")
+
+notas = [4.5, 6.0, 7.0]
+suma = 0
+for n in notas:
+    suma = suma + n
+print("Promedio:", suma / len(notas))</textarea>
+      <div class="btn-row">
+        <button id="pgRun">▶ Ejecutar</button>
+      </div>
+      <pre id="pgOut" class="salida" style="display:none"></pre>
+      <p class="tip" style="margin-top:14px">El <code class="inline">input()</code> aquí no pedirá texto (no hay dónde escribirlo), así que para probar con entradas es mejor poner los valores directo en variables.</p>
+    </div>
+  </div>
+
+  <script src="js/editor.js"></script>
+  <script src="js/runner.js"></script>
+  <script src="js/repaso.js"></script>
+</body>
+</html>

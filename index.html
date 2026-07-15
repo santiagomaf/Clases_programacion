@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejercicios de Python</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>🐍 Ejercicios de Python</h1>
+    <div>
+      <span class="who" id="whoami"></span>
+      <a href="repaso.html" style="margin-left:14px">📚 Repaso</a>
+      <a href="admin.html" class="muted" style="margin-left:14px">Admin</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Paso 1: nombre -->
+    <div class="card" id="loginCard">
+      <h2>¿Cómo te llamas?</h2>
+      <p class="muted">Escribe tu nombre para empezar. Se usará para guardar tus entregas.</p>
+      <input type="text" id="nameInput" placeholder="Tu nombre y apellido" autocomplete="off">
+      <div class="btn-row"><button id="enterBtn">Entrar</button></div>
+    </div>
+
+    <!-- Paso 2: lista de ejercicios -->
+    <div class="card hidden" id="listCard">
+      <h2>Ejercicios disponibles</h2>
+      <ul class="exercise-list" id="exerciseList"></ul>
+      <p class="muted" id="emptyMsg hidden"></p>
+    </div>
+
+    <!-- Paso 3: resolver un ejercicio -->
+    <div class="hidden" id="solveView">
+      <div class="btn-row" style="margin-top:0">
+        <button class="secondary" id="backBtn">← Volver</button>
+      </div>
+      <div class="card">
+        <h2 id="exTitle"></h2>
+        <div class="enunciado" id="exDesc"></div>
+      </div>
+      <div class="card" id="exCasesCard">
+        <h2>🎯 A qué resultado debes llegar</h2>
+        <div id="exCases"></div>
+      </div>
+      <div class="card">
+        <h2>Tu código</h2>
+        <textarea class="code" id="codeArea" spellcheck="false"></textarea>
+        <div class="btn-row">
+          <button id="runBtn">▶ Probar</button>
+          <button id="submitBtn" class="secondary">✓ Entregar</button>
+          <span class="status" id="status"></span>
+        </div>
+        <div class="results" id="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/seed.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/runner.js"></script>
+  <script src="js/student.js"></script>
+</body>
+</html>
