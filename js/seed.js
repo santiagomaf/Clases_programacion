@@ -243,7 +243,13 @@ print(f"Min: {min(tiempos)} | Max: {max(tiempos)} | Promedio: {round(sum(tiempos
 /* Carga/actualiza el seed. Expone window.seedReady (promesa).
    - Si cambió la versión: borra lo viejo y carga el conjunto nuevo.
    - Si no hay NINGÚN ejercicio: los crea igual (aunque la versión coincida). */
+window.EJERCICIOS = EJERCICIOS; // usado por el botón "Cargar ejemplos" del admin
+
 window.seedReady = (async function () {
+  // Con base compartida (Supabase) NO se auto-siembra: el profe carga los
+  // ejemplos desde el panel de admin con un botón (para no duplicarlos).
+  if (window.DB && window.DB._isSupabase) return;
+
   const stored = localStorage.getItem('clases_seed_version');
   const existentes = await DB.listExercises();
   const cambioVersion = stored !== String(SEED_VERSION);

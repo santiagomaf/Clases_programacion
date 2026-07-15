@@ -1,8 +1,9 @@
 /* Lógica del panel de profesor. */
 (function () {
   const $ = id => document.getElementById(id);
-  // ⚠️ Cámbiala por la que quieras. En la versión con Supabase esto pasa a ser login real.
+  // Solo se usa si NO hay Supabase configurado (modo local de respaldo).
   const ADMIN_PASSWORD = 'profe123';
+  const useAuth = !!(window.DB && window.DB._isSupabase);
 
   function esc(s) {
     return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -10,7 +11,12 @@
 
   /* ---------- Acceso ---------- */
   async function checkLogged() {
-    const ok = sessionStorage.getItem('clases_admin') === '1';
+    let ok;
+    if (useAuth) {
+      try { ok = !!(await DB.currentUser()); } catch (e) { ok = false; }
+    } else {
+      ok = sessionStorage.getItem('clases_admin') === '1';
+    }
     $('adminLogin').classList.toggle('hidden', ok);
     $('adminMain').classList.toggle('hidden', !ok);
     if (ok) {
@@ -25,28 +31,48 @@
       refreshSubFilter();
     }
   }
-  $('pwBtn').onclick = () => {
-    if ($('pwInput').value === ADMIN_PASSWORD) {
-      sessionStorage.setItem('clases_admin', '1');
-      $('pwErr').textContent = '';
-      checkLogged();
+  $('pwBtn').onclick = async () => {
+    $('pwErr').textContent = '';
+    if (useAuth) {
+      $('pwBtn').disabled = true;
+      try {
+        await DB.signIn($('emailInput').value.trim(), $('pwInput').value);
+        checkLogged();
+      } catch (e) {
+        $('pwErr').textContent = 'No se pudo entrar: ' + (e.message || e);
+      } finally {
+        $('pwBtn').disabled = false;
+      }
     } else {
-      $('pwErr').textContent = 'Contraseña incorrecta.';
+      if ($('pwInput').value === ADMIN_PASSWORD) {
+        sessionStorage.setItem('clases_admin', '1');
+        checkLogged();
+      } else {
+        $('pwErr').textContent = 'Contraseña incorrecta.';
+      }
     }
   };
   $('pwInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('pwBtn').click(); });
-  $('logoutBtn').onclick = () => { sessionStorage.removeItem('clases_admin'); checkLogged(); };
+  $('logoutBtn').onclick = async () => {
+    if (useAuth) { try { await DB.signOut(); } catch (e) {} }
+    else sessionStorage.removeItem('clases_admin');
+    checkLogged();
+  };
 
   /* ---------- Pestañas ---------- */
   function showTab(which) {
     $('paneEx').classList.toggle('hidden', which !== 'ex');
     $('paneSub').classList.toggle('hidden', which !== 'sub');
+    $('paneStudents').classList.toggle('hidden', which !== 'students');
     $('tabEx').className = which === 'ex' ? '' : 'secondary';
     $('tabSub').className = which === 'sub' ? '' : 'secondary';
+    $('tabStudents').className = which === 'students' ? '' : 'secondary';
     if (which === 'sub') renderSubs();
+    if (which === 'students') renderStudents();
   }
   $('tabEx').onclick = () => showTab('ex');
   $('tabSub').onclick = () => showTab('sub');
+  $('tabStudents').onclick = () => showTab('students');
 
   /* ---------- Editor de ejercicios ---------- */
   function toggleTypeConfig() {
@@ -172,7 +198,25 @@
   async function renderAdminExList() {
     const list = await DB.listExercises();
     const ul = $('adminExList');
-    if (!list.length) { ul.innerHTML = '<p class="muted">Aún no hay ejercicios.</p>'; return; }
+    if (!list.length) {
+      ul.innerHTML = '<p class="muted">Aún no hay ejercicios.</p>';
+      // Botón para cargar los 6 ejercicios de ejemplo a la base compartida.
+      if (window.EJERCICIOS && window.EJERCICIOS.length) {
+        const b = document.createElement('button');
+        b.textContent = '⬇️ Cargar 6 ejercicios de ejemplo';
+        b.onclick = async () => {
+          b.disabled = true; b.textContent = 'Cargando…';
+          try {
+            for (const ex of window.EJERCICIOS) await DB.createExercise(ex);
+          } catch (e) {
+            alert('Error al cargar: ' + (e.message || e));
+          }
+          renderAdminExList(); refreshSubFilter();
+        };
+        ul.appendChild(b);
+      }
+      return;
+    }
     ul.innerHTML = '';
     for (const ex of list) {
       const subs = await DB.listSubmissions({ exerciseId: ex.id });
@@ -208,9 +252,23 @@
   }
   $('subFilter').onchange = renderSubs;
 
+  let subStudentFilter = ''; // filtro opcional por alumno (desde la pestaña Alumnos)
+
+  function updateSubStudentTag() {
+    const tag = $('subStudentTag');
+    if (!subStudentFilter) { tag.innerHTML = ''; return; }
+    tag.innerHTML = `<span class="pill pending">Alumno: ${esc(subStudentFilter)}</span>
+      <button class="secondary" id="clearStudent" style="padding:3px 10px;margin-left:8px">Quitar filtro</button>`;
+    $('clearStudent').onclick = () => { subStudentFilter = ''; renderSubs(); };
+  }
+
   async function renderSubs() {
     const exId = $('subFilter').value;
-    const subs = await DB.listSubmissions(exId ? { exerciseId: exId } : {});
+    const filtro = {};
+    if (exId) filtro.exerciseId = exId;
+    if (subStudentFilter) filtro.student = subStudentFilter;
+    const subs = await DB.listSubmissions(filtro);
+    updateSubStudentTag();
     const box = $('subList');
     if (!subs.length) { box.innerHTML = '<p class="muted">No hay entregas todavía.</p>'; return; }
     box.innerHTML = '';
@@ -253,6 +311,49 @@
       };
       box.appendChild(card);
     }
+  }
+
+  /* ---------- Lista de alumnos ---------- */
+  async function renderStudents() {
+    const subs = await DB.listSubmissions({});
+    const totalEx = (await DB.listExercises()).length;
+    const box = $('studentsList');
+    if (!subs.length) { box.innerHTML = '<p class="muted">Aún no hay entregas de ningún alumno.</p>'; return; }
+
+    // Agrupa por alumno.
+    const porAlumno = {};
+    for (const s of subs) {
+      const a = porAlumno[s.student] || (porAlumno[s.student] = {
+        name: s.student, entregas: 0, resueltos: new Set(), intentados: new Set(), ultimo: s.created_at,
+      });
+      a.entregas++;
+      a.intentados.add(s.exercise_id);
+      if (s.passed) a.resueltos.add(s.exercise_id);
+      if (s.created_at > a.ultimo) a.ultimo = s.created_at;
+    }
+    const alumnos = Object.values(porAlumno).sort((x, y) => x.name.localeCompare(y.name));
+
+    box.innerHTML = `<table class="methods">
+      <tr><th>Alumno</th><th>Resueltos</th><th>Intentados</th><th>Entregas</th><th>Última actividad</th><th></th></tr>
+      ${alumnos.map((a, i) => `
+        <tr>
+          <td><strong>${esc(a.name)}</strong></td>
+          <td>${a.resueltos.size} / ${totalEx}</td>
+          <td>${a.intentados.size}</td>
+          <td>${a.entregas}</td>
+          <td class="muted">${new Date(a.ultimo).toLocaleString()}</td>
+          <td><button class="secondary verSub" data-i="${i}" style="padding:4px 10px">Ver entregas</button></td>
+        </tr>`).join('')}
+    </table>
+    <p class="muted" style="margin-top:10px">Total de alumnos: ${alumnos.length}</p>`;
+
+    box.querySelectorAll('.verSub').forEach(btn => {
+      btn.onclick = () => {
+        subStudentFilter = alumnos[+btn.dataset.i].name;
+        $('subFilter').value = '';
+        showTab('sub');
+      };
+    });
   }
 
   // Init

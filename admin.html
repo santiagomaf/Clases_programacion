@@ -20,8 +20,11 @@
     <!-- Login admin -->
     <div class="card" id="adminLogin">
       <h2>Acceso profesor</h2>
-      <p class="muted">Introduce la contraseña de administrador.</p>
-      <input type="password" id="pwInput" placeholder="Contraseña">
+      <p class="muted">Entra con tu email y contraseña de profesor.</p>
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="tu@email.com" autocomplete="username">
+      <label>Contraseña</label>
+      <input type="password" id="pwInput" placeholder="Contraseña" autocomplete="current-password">
       <div class="btn-row"><button id="pwBtn">Entrar</button></div>
       <p class="muted" id="pwErr" style="color:var(--bad)"></p>
     </div>
@@ -31,6 +34,7 @@
       <div class="btn-row" style="margin-bottom:16px">
         <button id="tabEx">📝 Ejercicios</button>
         <button id="tabSub" class="secondary">📥 Entregas</button>
+        <button id="tabStudents" class="secondary">👥 Alumnos</button>
       </div>
 
       <!-- ===== Pestaña: Ejercicios ===== -->
@@ -99,13 +103,26 @@
           <h2>Entregas de los alumnos</h2>
           <label>Filtrar por ejercicio</label>
           <select id="subFilter"><option value="">Todos los ejercicios</option></select>
+          <div id="subStudentTag" style="margin-top:10px"></div>
           <div id="subList" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <!-- ===== Pestaña: Alumnos ===== -->
+      <div id="paneStudents" class="hidden">
+        <div class="card">
+          <h2>Alumnos</h2>
+          <p class="muted">Aparecen los alumnos que han entregado al menos una vez.</p>
+          <div id="studentsList" style="margin-top:12px"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
   <script src="js/db.js"></script>
+  <script src="js/db-supabase.js"></script>
   <script src="js/seed.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/runner.js"></script>
