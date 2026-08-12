@@ -19,14 +19,23 @@
   }
 
   async function renderList() {
-    const list = await DB.listExercises();
     const ul = $('exerciseList');
+    let list;
+    try {
+      list = await DB.listExercises();
+    } catch (e) {
+      ul.innerHTML = `<p class="muted" style="color:var(--bad)">⚠️ No se pudieron cargar los ejercicios.<br>Detalle: ${esc(e.message || e)}</p>`;
+      console.error('Error al cargar ejercicios:', e);
+      return;
+    }
     if (!list.length) {
       ul.innerHTML = '<p class="muted">Todavía no hay ejercicios. Pídele a tu profe que cree alguno en el panel de Admin.</p>';
       return;
     }
-    // Trae las entregas del alumno para marcar cuáles ya resolvió.
-    const subs = await DB.listSubmissions({ student: studentName });
+    // Trae las entregas del alumno para marcar cuáles ya resolvió (no crítico).
+    let subs = [];
+    try { subs = await DB.listSubmissions({ student: studentName }); }
+    catch (e) { console.warn('No se pudieron cargar las entregas:', e); }
     const bestByEx = {};
     for (const s of subs) {
       if (!bestByEx[s.exercise_id] || (s.passed && !bestByEx[s.exercise_id].passed)) {
